@@ -14,29 +14,9 @@ export class TasksService {
         private tasksRepository: TasksRepository
     ) {}
     
-
-    private tasks: Task[] = [];
-
     //Get tasks
-    getTasks(getTaskFilter: GetTaskFilterDto): Task[] {
-        const {search, status} = getTaskFilter;
-
-        let tasks = this.tasks;
-
-        if (status) {
-            tasks = tasks.filter((task) => task.status === status);
-        }
-
-        if (search) {
-            tasks = tasks.filter((task) => {
-                if (task.title.includes(search)) {
-                    return true;
-                }
-                if (task.description.includes(search)) {
-                    return true;
-                }
-            })
-        }
+    async getTasks(getTaskFilter: GetTaskFilterDto): Promise<Task[]> {
+        const tasks = await this.tasksRepository.getAll(getTaskFilter);
         return tasks;
     }
 
@@ -64,8 +44,11 @@ export class TasksService {
      * Delete by id
      * @param id string
      */
-    deleteById(id: string) {
-        this.tasks = this.tasks.filter(task => task.id !== id);
+    async deleteById(id: string) {
+        const task = await this.tasksRepository.findOne(id);
+        if (task) {
+            this.tasksRepository.remove(task);
+        }
     }
 
     /**
@@ -74,10 +57,12 @@ export class TasksService {
      * @param taskStatus TaskStatus
      * @returns Task
      */
-    updateStatus(id: string, taskStatus: TaskStatus): Task {
-        var task = this.tasks.find((task) => task.id === id);
-        task.status = taskStatus;
+    async updateStatus(id: string, taskStatus: TaskStatus): Promise<Task> {
+        const task = await this.tasksRepository.findOne(id);
+        if (task) {
+            task.status = taskStatus;
+            this.tasksRepository.save(task);
+        }
         return task;
-
     }
 }

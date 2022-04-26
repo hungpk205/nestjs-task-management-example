@@ -11,7 +11,7 @@ export class TasksController {
 
     //Get tasks
     @Get()
-    getTasks(@Query() getTaskFilter: GetTaskFilterDto): Task[] {
+    getTasks(@Query() getTaskFilter: GetTaskFilterDto): Promise<Task[]> {
         return this.taskService.getTasks(getTaskFilter);
     }
 
@@ -48,7 +48,7 @@ export class TasksController {
      * @returns Task
      */
     @Patch(":id")
-    updateStatus(@Param("id") id: string, @Body() request: UpdateTaskStatus): Task {
+    updateStatus(@Param("id") id: string, @Body() request: UpdateTaskStatus): Promise<Task> {
         return this.taskService.updateStatus(id, request.status);
     }
 
